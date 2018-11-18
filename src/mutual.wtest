@@ -1,0 +1,128 @@
+import actividades.*
+import socios.*
+
+describe "Actividades y socios de una mutual"{
+	const necochea = new ViajePlaya (largoPlaya=2000, idiomas = ["espaniol", "ingles", "portugues"])
+	const monteHermoso = new ViajePlaya (largoPlaya=1000, idiomas = [])
+	const rosario = new ViajeCiudad (atracciones =4, idiomas = ["espaniol"])
+	const humahuaca = new ViajeCiudadTrop (atracciones=4, idiomas = ["portugues, ingles"])
+	const cordoba = new ViajeCiudad (atracciones =8, idiomas = ["ingles"])
+	const oran = new ViajeCiudadTrop (atracciones=8, idiomas = ["espaniol","ingles","quechua"])
+	const trekking1 = new ViajeTrekking (kilometros=100, diasSol=130, idiomas = ["espaniol","mapudungun"])
+	const trekking2 = new ViajeTrekking (kilometros=50, diasSol=240, idiomas = ["quechua", "espaniol"])
+	const trekking3 = new ViajeTrekking (kilometros=250, diasSol=130, idiomas = ["aleman", "frances", "italiano", "suizo"])
+	const claseSpinning= new ClaseGimnasia()
+
+	const roque = new Socio (
+		idiomas = ["espaniol"],
+		edad = 40,
+		maxActividades = 2)
+
+	const ana = new Socio (
+		idiomas = ["espaniol"],
+		edad = 25,
+		maxActividades = 3,
+		tipo = coherente)
+		
+	method viajesALaPlaya(socio){
+		socio.realizarActividad(necochea)
+		socio.realizarActividad(monteHermoso)
+	}
+	
+	test "rosario lleva 2 dias, no esfuerzo, broncea" {
+		assert.equals(2, rosario.dias())
+		assert.notThat(rosario.esfuerzo())
+		assert.notThat(rosario.bronceado())
+		}
+	test "humahuaca lleva 3 dias, no esfuerzo, broncea"{
+		assert.equals(3,humahuaca.dias())
+		assert.notThat(humahuaca.esfuerzo())
+		assert.that(humahuaca.bronceado())
+		}
+	test "cordoba lleva 4 dias, esfuerzo SI, bronceado NO"{
+		assert.equals(4, cordoba.dias())
+		assert.that(cordoba.esfuerzo())
+		assert.notThat(cordoba.bronceado())
+		}
+	test "oran lleva 5 dias, esfuerzo SI, bronceado SI"{
+		assert.equals(5,oran.dias())
+		assert.that(oran.esfuerzo())
+		assert.that(oran.bronceado())
+		}
+	
+	test "trekking1 lleva 2 dias, esfuerzo SI, bronceado NO"{
+		assert.equals(2,trekking1.dias())
+		assert.that(trekking1.esfuerzo())
+		assert.that(not trekking1.bronceado())
+		}
+	test "trekking2 lleva 1 dia, esfuerzo NO, bronceado SI"{
+		assert.equals(1, trekking2.dias())
+		assert.that(not trekking2.esfuerzo())
+		assert.that(trekking2.bronceado())
+		}
+	test "trekking3 lleva 5dias, esfuerzo SI, bronceado SI"{
+		assert.equals(5,trekking3.dias())
+		assert.that(trekking3.esfuerzo())
+		assert.that(trekking3.bronceado())
+		}
+	
+	test "necochea es interesate por idiomas"{
+		assert.that(necochea.esInteresante())
+	}
+	
+	test "Rosario no es interesante"{
+		assert.notThat(rosario.esInteresante())
+	}
+	test "Rosario, con 5 atracciones, es interesante"{
+		rosario.atracciones(5)
+		assert.that(rosario.esInteresante())
+	}
+	test "Trekking2 es interesante por diasSol"{
+		assert.that(trekking2.esInteresante())
+	}
+	
+	test "roque es adorador del sol"{
+		self.viajesALaPlaya(roque)
+		assert.that(roque.adoraElSol())
+		}
+	
+	test "roque no puede anotarse a otra actividad"{
+		self.viajesALaPlaya(roque)
+		assert.throwsExceptionWithMessage("No se pueden agregar más actividades",{roque.realizarActividad(claseSpinning)})
+	}
+	
+	test "roque tiene 1 actividad esforzada"{
+		self.viajesALaPlaya(roque)
+		assert.equals([necochea],roque.actividadesEsforzadas())
+	}
+	
+	test "Ana si puede, pero pierde su estado de adoraElSol"{
+		self.viajesALaPlaya(ana)
+		ana.realizarActividad(claseSpinning)
+		assert.notThat(ana.adoraElSol())
+		}
+	
+	test "Ana tiene 2 actividades esforzadas"{
+		self.viajesALaPlaya(ana)
+		ana.realizarActividad(claseSpinning)
+		assert.equals([necochea,claseSpinning],ana.actividadesEsforzadas())
+	}
+		
+	test "Socio tranquilo le atrae ir a cordoba, porque lleva 4 dias"{
+		roque.tipo(tranquilo)
+		assert.that(roque.leAtrae(cordoba))
+	}
+	test "Socio coherente que adora el sol, le gusta actividad para broncearse"{
+		ana.tipo(coherente)
+		self.viajesALaPlaya(ana)
+		assert.that(ana.leAtrae(necochea))
+	}
+		
+	test "Trekking 2 se recomienda a Ana" {
+		assert.that(trekking2.seRecomiendaA(ana))
+	}
+	test "Clase spinning se recomienda a Ana"{
+		assert.that(claseSpinning.seRecomiendaA(ana))
+	}
+
+}
